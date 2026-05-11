@@ -6,3 +6,8 @@ export interface Message {
   content: string;
   createdAt: number;
 }
+
+export interface WidgetConfig {
+  apiUrl?: string;
+  tenant?: string;
+}
