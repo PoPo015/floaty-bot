@@ -1,8 +1,26 @@
 import { createRoot } from 'react-dom/client';
-import { createElement } from 'react';
+import React, { createElement } from 'react';
 import { App } from './widget/App';
+import type { WidgetConfig } from './widget/types';
 
 const HOST_ID = 'floating-widget-host';
+
+/**
+ * `document.currentScript`는 스크립트가 평가되는 시점에만 유효하므로
+ * top-level에서 즉시 캡처해 클로저로 보관한다.
+ */
+const currentScript = document.currentScript as HTMLScriptElement | null;
+
+function readConfig(script: HTMLScriptElement | null): WidgetConfig {
+  if (!script) return {};
+  const ds = script.dataset;
+  return {
+    apiUrl: ds.apiUrl,
+    tenant: ds.tenant,
+  };
+}
+
+const config = readConfig(currentScript);
 
 function mount() {
   if (document.getElementById(HOST_ID)) return;
@@ -23,7 +41,7 @@ function mount() {
   const mountPoint = document.createElement('div');
   shadow.appendChild(mountPoint);
 
-  createRoot(mountPoint).render(createElement(App));
+  createRoot(mountPoint).render(createElement(App as React.ComponentType<{ config?: WidgetConfig }>, { config }));
 }
 
 if (document.readyState === 'loading') {
